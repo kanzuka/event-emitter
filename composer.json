@@ -1,0 +1,30 @@
+{
+    "name": "icicleio/event-emitter",
+    "description": "Event Emitter is a library that allows objects to emit events that invoke a set of registered callbacks.",
+    "keywords": [
+        "event",
+        "emitter",
+        "listener",
+        "subscriber"
+    ],
+    "homepage": "http://icicle.io",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Aaron Piotrowski",
+            "email": "aaron@icicle.io"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*",
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Icicle\\EventEmitter\\": "src"
+        }
+    }
+}
