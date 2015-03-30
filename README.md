@@ -4,7 +4,9 @@
 [![Build Status](https://img.shields.io/travis/icicleio/EventEmitter/master.svg?style=flat-square)](https://travis-ci.org/icicleio/EventEmitter)
 [![Coverage Status](https://img.shields.io/coveralls/icicleio/EventEmitter.svg?style=flat-square)](https://coveralls.io/r/icicleio/EventEmitter)
 [![Semantic Version](https://img.shields.io/badge/semver-v1.0.0-yellow.svg?style=flat-square)](http://semver.org)
-[![Apache 2 License](https://img.shields.io/packagist/l/icicleio/EventEmitter.svg?style=flat-square)](LICENSE)
+[![Apache 2 License](https://img.shields.io/packagist/l/icicleio/event-emitter.svg?style=flat-square)](LICENSE)
+
+[![Join the chat at https://gitter.im/icicleio/Icicle](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/icicleio/Icicle)
 
 Event emitters are objects that can create a set of events identified by an integer or string to which other code can register callbacks that are invoked when the event occurs. Each event emitter should implement `Icicle\EventEmitter\EventEmitterInterface`, which can be done easily by using `Icicle\EventEmitter\EventEmitterTrait` in the class definition.
 
@@ -234,7 +236,7 @@ The static method `Icicle\Promise\Promise::promisify()` can be used to create a 
 use Icicle\Loop\Loop;
 use Icicle\Promise\Promise;
 
-// include ExampleEventEmitter class definition from above.
+// Include ExampleEventEmitter class definition from above.
 
 $emitter = new ExampleEventEmitter();
 
@@ -249,7 +251,10 @@ $promise = $promise->then(function (array $args) {
     echo "Argument 2 value: {$arg2}\n";
 });
 
-$emitter->action(404, 3.14159); // Fulfills promise.
+// Simulates an event being emitted while running the loop.
+Loop::schedule(function () use ($emitter) {
+    $emitter->action(404, 3.14159); // Fulfills promise.
+});
 
 Loop::run();
 ```
@@ -258,7 +263,7 @@ See the [Promise API documentation](//github.com/icicleio/Icicle/tree/master/src
 
 ## Using Coroutines with Event Emitters
 
-[Coroutines](//github.com/icicleio/Coroutines) are a component available for [Icicle](//github.com/icicleio/Icicle) which use generators to create cooperative coroutines.
+[Coroutines](//github.com/icicleio/Icicle/tree/master/src/Coroutine) use generators to create cooperative coroutines. They are a component of the [Icicle](//github.com/icicleio/Icicle) library for writing asynchronous code in PHP.
 
 Event emitters can be used to create and execute coroutines each time an event is emitted. The static method `Icicle\Coroutine\Coroutine::async()` returns a function that can be used as the event listener on an event emitter.
 
@@ -266,16 +271,21 @@ Event emitters can be used to create and execute coroutines each time an event i
 use Icicle\Coroutine\Coroutine;
 use Icicle\Loop\Loop;
 
-// include ExampleEventEmitter class definition from above.
+// Include ExampleEventEmitter class definition from above.
 
 $emitter = new ExampleEventEmitter();
 
 $emitter->on('action', Coroutine::async(function ($arg1, $arg2) {
     $result = (yield $arg1 * $arg2);
     echo "Result: {$result}\n";
+}));
+
+// Simulates an event being emitted while running the loop.
+Loop::schedule(function () use ($emitter) {
+    $emitter->action(404, 3.14159); // Creates and runs coroutine.
 });
 
 Loop::run();
 ```
 
-See the [Coroutine API documentation](//github.com/icicleio/Coroutines) for more information on using coroutines.
+See the [Coroutine API documentation](//github.com/icicleio/Icicle/tree/master/src/Coroutine) for more information on using coroutines.
