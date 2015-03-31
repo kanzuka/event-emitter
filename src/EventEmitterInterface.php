@@ -6,8 +6,8 @@ interface EventEmitterInterface
     /**
      * Adds a listener function that is called each time the event is emitted.
      *
-     * @param   string|int $event
-     * @param   callable $listener
+     * @param   string|int $event Event identifier.
+     * @param   callable $listener Function to invoke when the event is emitted.
      * @param   bool $once Set to true for the listener to be called only the next time the event is emitted.
      *
      * @return  $this
@@ -23,8 +23,8 @@ interface EventEmitterInterface
      *
      * @see     addListener()
      *
-     * @param   string|int $event
-     * @param   callable $listener
+     * @param   string|int $event Event identifier.
+     * @param   callable $listener Function to invoke when the event is emitted.
      *
      * @return  $this
      *
@@ -38,8 +38,8 @@ interface EventEmitterInterface
      * Adds a one time listener that is called only the next time the event is emitted. Alias of
      * addListener() with the $once parameter set to true.
      *
-     * @param   string|int $event
-     * @param   callable $listener
+     * @param   string|int $event Event identifier.
+     * @param   callable $listener Function to invoke when the event is emitted.
      *
      * @return  $this
      *
@@ -52,8 +52,8 @@ interface EventEmitterInterface
     /**
      * Removes the listener from the event.
      *
-     * @param   string|int $event
-     * @param   callable $listener
+     * @param   string|int $event Event identifier.
+     * @param   callable $listener Function to remove.
      *
      * @return  $this
      *
@@ -68,8 +68,8 @@ interface EventEmitterInterface
      *
      * @see     removeListener()
      *
-     * @param   string|int
-     * @param   callable $listener
+     * @param   string|int $event Event identifier.
+     * @param   callable $listener Function to remove.
      *
      * @return  $this
      *
@@ -82,7 +82,7 @@ interface EventEmitterInterface
     /**
      * Removes all listeners from the event or all events if no event is given.
      *
-     * @param   string|int|null $event Event name or null to remove all event listeners.
+     * @param   string|int|null $event Event identifier or null to remove all event listeners.
      *
      * @return  $this
      *
@@ -95,9 +95,9 @@ interface EventEmitterInterface
     /**
      * Returns all listeners for the event.
      *
-     * @param   string|int $event
+     * @param   string|int $event Event identifier.
      *
-     * @return  callable[string] Array of event listeners.
+     * @return  callable[] Array of event listeners.
      *
      * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
      *
@@ -108,7 +108,7 @@ interface EventEmitterInterface
     /**
      * Determines the number of listeners on an event.
      *
-     * @param   string $event
+     * @param   string $event Event identifier.
      *
      * @return  int Number of listeners defined.
      *
@@ -117,17 +117,4 @@ interface EventEmitterInterface
      * @api
      */
     public function getListenerCount($event);
-    
-    /**
-     * Calls all event listeners for the given event name, passing all other arguments given to this function as arguments
-     * to the event listeners.
-     *
-     * @param   string|int $event
-     * @param   mixed ...$args
-     *
-     * @return  bool True if any listeners were called, false if no listeners were called.
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     */
-    public function emit($event /* , ...$args */);
 }

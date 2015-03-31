@@ -12,7 +12,7 @@ Event emitters are objects that can create a set of events identified by an inte
 
 This implementation differs from other event emitter libraries by ensuring that a particular callback can only be registered once for a particular event identifier. An attempt to register a previously registered callback is a no-op.
 
-Event identifiers are also strictly enforced to aid in debugging. Event emitter objects must initial event identifiers of events they wish to emit. If an attempt to register a callback is made on a non-existent event, a `Icicle\EventEmitter\Exception\InvalidEventException` is thrown.
+Event identifiers are also strictly enforced to aid in debugging. Event emitter objects must initialize event identifiers of events they wish to emit. If an attempt to register a callback is made on a non-existent event, a `Icicle\EventEmitter\Exception\InvalidEventException` is thrown.
 
 ##### Example
 
@@ -29,7 +29,7 @@ class ExampleEventEmitter implements EventEmitterInterface
         $this->createEvent('action'); // Creates event with 'action' identifier.
     }
     
-    public function action($arg1, $arg2)
+    public function doAction($arg1, $arg2)
     {
         $this->emit('action', $arg1, $arg2); // Emits an event with 'action' identifier.
     }
@@ -52,8 +52,8 @@ $emitter->once('action', function ($arg1, $arg2) {
     echo "Result: {$result}\n";
 });
 
-$emitter->action(404, 3.14159); // Calls both functions above.
-$emitter->action(200, 2.71828); // Calls only the first function.
+$emitter->doAction(404, 3.14159); // Calls both functions above.
+$emitter->doAction(200, 2.71828); // Calls only the first function.
 ```
 
 ##### Requirements
@@ -204,6 +204,18 @@ int $eventListenerInterface->getListenerCount(string|int $event)
 
 Gets the number of listeners on the event identifier. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
 
+## EventEmitterTrait
+
+`Icicle\EventEmitter\EventEmitterTrait` is a simple way for any class to implement `Icicle\EventEmitter\EventEmitterInterface`. This trait defines protected methods that are not part of `Icicle\EventEmitter\EventEmitterInterface` that are used to create and emit events.
+
+#### createEvent()
+
+```php
+$this $eventEmitterTrait->create(string|int $identifier)
+```
+
+This method creates an event identifier so events may be emitted and listeners added. Generally this method will be called in the constructor to initialize a set of event identifiers.
+
 ---
 
 #### emit()
@@ -213,18 +225,6 @@ bool $eventListenerInterface->emit(string|int $event, mixed ...$args)
 ```
 
 Emits an event with the event identifier `$event`, passing the remaining arguments given to this function as the arguments to each event listener. The method returns `true` if any event listeners were invoked, `false` if none were. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
-
-## EventEmitterTrait
-
-`Icicle\EventEmitter\EventEmitterTrait` is a simple way for any class to implement `Icicle\EventEmitter\EventEmitterInterface`. This trait defines a protected method that is not part of `Icicle\EventEmitter\EventEmitterInterface` that is used to create an event identifier.
-
-#### createEvent()
-
-```php
-$this $eventEmitterTrait->create(string|int $identifier)
-```
-
-This method creates an event identifier so events may be emitted and listeners added. Generally this method will be called in the constructor to initialize a set of event identifiers.
 
 ## Using Promises with Event Emitters
 
@@ -253,7 +253,7 @@ $promise = $promise->then(function (array $args) {
 
 // Simulates an event being emitted while running the loop.
 Loop::schedule(function () use ($emitter) {
-    $emitter->action(404, 3.14159); // Fulfills promise.
+    $emitter->doAction(404, 3.14159); // Fulfills promise.
 });
 
 Loop::run();
@@ -282,7 +282,7 @@ $emitter->on('action', Coroutine::async(function ($arg1, $arg2) {
 
 // Simulates an event being emitted while running the loop.
 Loop::schedule(function () use ($emitter) {
-    $emitter->action(404, 3.14159); // Creates and runs coroutine.
+    $emitter->doAction(404, 3.14159); // Creates and runs coroutine.
 });
 
 Loop::run();

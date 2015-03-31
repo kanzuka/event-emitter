@@ -9,7 +9,7 @@ use Icicle\Tests\TestCase;
 class EventEmitterTest extends TestCase
 {
     /**
-     * @var \Icicle\EventEmitter\EventEmitterInterface
+     * @var \Icicle\Tests\Stub\EventEmitterStub
      */
     protected $emitter;
     

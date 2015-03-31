@@ -6,7 +6,7 @@ use Icicle\EventEmitter\Exception\InvalidEventException;
 trait EventEmitterTrait
 {
     /**
-     * @var callable[string|int][string]
+     * @var callable[][]
      */
     private $listeners = [];
     
@@ -23,19 +23,39 @@ trait EventEmitterTrait
         
         return $this;
     }
-    
+
     /**
-     * Adds a listener function that is called each time the event is emitted.
+     * Calls all event listeners for the given event name, passing all other arguments given to this function as
+     * arguments to the event listeners.
      *
      * @param   string|int $event
-     * @param   callable $listener
-     * @param   bool $once Set to true for the listener to be called only the next time the event is emitted.
+     * @param   mixed ...$args
      *
-     * @return  $this
+     * @return  bool True if any listeners were called, false if no listeners were called.
      *
      * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     */
+    protected function emit($event /* , ...$args */)
+    {
+        if (!isset($this->listeners[$event])) {
+            throw new InvalidEventException($event);
+        }
+
+        if (empty($this->listeners[$event])) {
+            return false;
+        }
+
+        $args = array_slice(func_get_args(), 1);
+
+        foreach ($this->listeners[$event] as $listener) {
+            call_user_func_array($listener, $args);
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function addListener($event, callable $listener, $once = false)
     {
@@ -60,18 +80,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Alias of addListener() without the $once parameter.
-     *
-     * @see     addListener()
-     *
-     * @param   string|int $event
-     * @param   callable $listener
-     *
-     * @return  $this
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function on($event, callable $listener)
     {
@@ -79,17 +88,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Adds a one time listener that is called only the next time the event is emitted. Alias of
-     * addListener() with the $once parameter set to true.
-     *
-     * @param   string|int $event
-     * @param   callable $listener
-     *
-     * @return  $this
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function once($event, callable $listener)
     {
@@ -97,16 +96,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Removes the listener from the event.
-     *
-     * @param   string|int $event
-     * @param   callable $listener
-     *
-     * @return  $this
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function removeListener($event, callable $listener)
     {
@@ -123,18 +113,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Alias of removeListener().
-     *
-     * @see     removeListener()
-     *
-     * @param   string|int
-     * @param   callable $listener
-     *
-     * @return  $this
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function off($event, callable $listener)
     {
@@ -142,15 +121,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Removes all listeners from the event or all events if no event is given.
-     *
-     * @param   string|int|null $event Event name or null to remove all event listeners.
-     *
-     * @return  $this
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function removeAllListeners($event = null)
     {
@@ -170,15 +141,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Returns all listeners for the event.
-     *
-     * @param   string|int $event
-     *
-     * @return  callable[string] Array of event listeners.
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function getListeners($event)
     {
@@ -190,15 +153,7 @@ trait EventEmitterTrait
     }
     
     /**
-     * Determines the number of listeners on an event.
-     *
-     * @param   string $event
-     *
-     * @return  int Number of listeners defined.
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     *
-     * @api
+     * @inheritdoc
      */
     public function getListenerCount($event)
     {
@@ -208,43 +163,9 @@ trait EventEmitterTrait
         
         return count($this->listeners[$event]);
     }
-    
+
     /**
-     * Calls all event listeners for the given event name, passing all other arguments given to this function as
-     * arguments to the event listeners.
-     *
-     * @param   string|int $event
-     * @param   mixed ...$args
-     *
-     * @return  bool True if any listeners were called, false if no listeners were called.
-     *
-     * @throws  \Icicle\EventEmitter\Exception\InvalidEventException If the event name does not exist.
-     */
-    public function emit($event /* , ...$args */)
-    {
-        if (!isset($this->listeners[$event])) {
-            throw new InvalidEventException($event);
-        }
-        
-        if (empty($this->listeners[$event])) {
-            return false;
-        }
-        
-        $args = array_slice(func_get_args(), 1);
-        
-        foreach ($this->listeners[$event] as $listener) {
-            call_user_func_array($listener, $args);
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Generates a unique, repeatable string for the given listener.
-     *
-     * @param   callable $listener
-     *
-     * @return  string Unique identifier for the callable.
+     * @inheritdoc
      */
     protected function getListenerIndex(callable $listener)
     {
