@@ -3,16 +3,16 @@
 [![@icicleio on Twitter](https://img.shields.io/badge/twitter-%40icicleio-5189c7.svg?style=flat-square)](https://twitter.com/icicleio)
 [![Build Status](https://img.shields.io/travis/icicleio/EventEmitter/master.svg?style=flat-square)](https://travis-ci.org/icicleio/EventEmitter)
 [![Coverage Status](https://img.shields.io/coveralls/icicleio/EventEmitter.svg?style=flat-square)](https://coveralls.io/r/icicleio/EventEmitter)
-[![Semantic Version](https://img.shields.io/badge/semver-v1.0.0-yellow.svg?style=flat-square)](http://semver.org)
+[![Semantic Version](https://img.shields.io/badge/semver-v1.1.0-yellow.svg?style=flat-square)](http://semver.org)
 [![Apache 2 License](https://img.shields.io/packagist/l/icicleio/event-emitter.svg?style=flat-square)](LICENSE)
 
 [![Join the chat at https://gitter.im/icicleio/Icicle](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/icicleio/Icicle)
 
-Event emitters are objects that can create a set of events identified by an integer or string to which other code can register callbacks that are invoked when the event occurs. Each event emitter should implement `Icicle\EventEmitter\EventEmitterInterface`, which can be done easily by using `Icicle\EventEmitter\EventEmitterTrait` in the class definition.
+Event emitters are objects that can create a set of events identified by an integer or string to which other code can register callbacks that are invoked when the event occurs. Each event emitter should implement `Icicle\EventEmitter\EventEmitterInterface`. Classes should implement this interface by extending `Icicle\EventEmitter\EventEmitter` or using the trait `Icicle\EventEmitter\EventEmitterTrait` in the class definition.
 
 This implementation differs from other event emitter libraries by ensuring that a particular callback can only be registered once for a particular event identifier. An attempt to register a previously registered callback is a no-op.
 
-Event identifiers are also strictly enforced to aid in debugging. Event emitter objects must initialize event identifiers of events they wish to emit. If an attempt to register a callback is made on a non-existent event, a `Icicle\EventEmitter\Exception\InvalidEventException` is thrown.
+Event identifiers are also strictly enforced to aid in debugging. Event emitter objects must initialize event identifiers of events they wish to emit. If an attempt to register a callback is made on a non-existent event, an `Icicle\EventEmitter\Exception\InvalidEventException` is thrown.
 
 ##### Example
 
@@ -204,6 +204,26 @@ int $eventListenerInterface->getListenerCount(string|int $event)
 
 Gets the number of listeners on the event identifier. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
 
+---
+
+#### emits()
+
+```php
+bool $eventListenerInterface->emits(string|int $event)
+```
+
+Determines if the object emits events with the identifier given by `$event`.
+
+---
+
+#### getEventList()
+
+```php
+array $eventListenerInterface->getEventList()
+```
+
+Returns an array of event identifiers emitted by the object.
+
 ## EventEmitterTrait
 
 `Icicle\EventEmitter\EventEmitterTrait` is a simple way for any class to implement `Icicle\EventEmitter\EventEmitterInterface`. This trait defines protected methods that are not part of `Icicle\EventEmitter\EventEmitterInterface` that are used to create and emit events.
@@ -228,7 +248,7 @@ Emits an event with the event identifier `$event`, passing the remaining argumen
 
 ## Using Promises with Event Emitters
 
-[Promises](//github.com/icicleio/Icicle/tree/master/src/Promise) are part of the [Icicle](//github.com/icicleio/Icicle) library for writing asynchronous code in PHP. Promises act as placeholders for the future value of an asynchronous operation.
+[Promises](//github.com/icicleio/Icicle/tree/master/src/Promise) are a component of [Icicle](//github.com/icicleio/Icicle), a library for writing asynchronous code in PHP. Promises act as placeholders for the future value of an asynchronous operation.
 
 The static method `Icicle\Promise\Promise::promisify()` can be used to create a function returning a promise that is resolved the next time an event emitter emits an event.
 
@@ -263,7 +283,7 @@ See the [Promise API documentation](//github.com/icicleio/Icicle/tree/master/src
 
 ## Using Coroutines with Event Emitters
 
-[Coroutines](//github.com/icicleio/Icicle/tree/master/src/Coroutine) use generators to create cooperative coroutines. They are a component of the [Icicle](//github.com/icicleio/Icicle) library for writing asynchronous code in PHP.
+[Coroutines](//github.com/icicleio/Icicle/tree/master/src/Coroutine) use generators to create cooperative coroutines. They are a component of [Icicle](//github.com/icicleio/Icicle), a library for writing asynchronous code in PHP.
 
 Event emitters can be used to create and execute coroutines each time an event is emitted. The static method `Icicle\Coroutine\Coroutine::async()` returns a function that can be used as the event listener on an event emitter.
 

@@ -117,4 +117,20 @@ interface EventEmitterInterface
      * @api
      */
     public function getListenerCount($event);
+
+    /**
+     * Determines if the object emits events using the given event identifier.
+     *
+     * @param   string|int $event Event identifier.
+     *
+     * @return  bool
+     */
+    public function emits($event);
+
+    /**
+     * Returns an array of defined event identifiers.
+     *
+     * @return  array
+     */
+    public function getEventList();
 }

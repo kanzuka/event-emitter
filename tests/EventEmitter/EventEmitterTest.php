@@ -19,7 +19,19 @@ class EventEmitterTest extends TestCase
         $this->emitter->createEvent('event1');
         $this->emitter->createEvent('event2');
     }
-    
+
+    public function testEmits()
+    {
+        $this->assertTrue($this->emitter->emits('event1'));
+        $this->assertTrue($this->emitter->emits('event2'));
+        $this->assertFalse($this->emitter->emits('invalid'));
+    }
+
+    public function testGetEventList()
+    {
+        $this->assertSame(['event1', 'event2'], $this->emitter->getEventList());
+    }
+
     public function testAddListenerWithClosure()
     {
         $callback = function () {};

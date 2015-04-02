@@ -11,7 +11,7 @@ trait EventEmitterTrait
     private $listeners = [];
     
     /**
-     * @param   string|int $event
+     * @param   string|int $event Event identifier.
      *
      * @return  $this
      */
@@ -166,6 +166,26 @@ trait EventEmitterTrait
 
     /**
      * @inheritdoc
+     */
+    public function emits($event)
+    {
+        return isset($this->listeners[$event]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEventList()
+    {
+        return array_keys($this->listeners);
+    }
+
+    /**
+     * Generates a unique, repeatable string for the given listener.
+     *
+     * @param   callable $listener
+     *
+     * @return  string Unique identifier for the callable.
      */
     protected function getListenerIndex(callable $listener)
     {
