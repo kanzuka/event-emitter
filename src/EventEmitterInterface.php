@@ -21,7 +21,7 @@ interface EventEmitterInterface
     /**
      * Alias of addListener() without the $once parameter.
      *
-     * @see     addListener()
+     * @see     \Icicle\EventEmitter\EventEmitterInterface::addListener()
      *
      * @param   string|int $event Event identifier.
      * @param   callable $listener Function to invoke when the event is emitted.
@@ -37,6 +37,8 @@ interface EventEmitterInterface
     /**
      * Adds a one time listener that is called only the next time the event is emitted. Alias of
      * addListener() with the $once parameter set to true.
+     *
+     * @see     \Icicle\EventEmitter\EventEmitterInterface::addListener()
      *
      * @param   string|int $event Event identifier.
      * @param   callable $listener Function to invoke when the event is emitted.
@@ -66,7 +68,7 @@ interface EventEmitterInterface
     /**
      * Alias of removeListener().
      *
-     * @see     removeListener()
+     * @see     \Icicle\EventEmitter\EventEmitterInterface::removeListener()
      *
      * @param   string|int $event Event identifier.
      * @param   callable $listener Function to remove.

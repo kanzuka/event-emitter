@@ -104,11 +104,9 @@ trait EventEmitterTrait
             throw new InvalidEventException($event);
         }
         
-        if (isset($this->listeners[$event])) {
-            $index = $this->getListenerIndex($listener);
-            unset($this->listeners[$event][$index]);
-        }
-        
+        $index = $this->getListenerIndex($listener);
+        unset($this->listeners[$event][$index]);
+
         return $this;
     }
     
@@ -129,11 +127,9 @@ trait EventEmitterTrait
             foreach ($this->listeners as $event => $listeners) {
                 $this->listeners[$event] = [];
             }
+        } elseif (!isset($this->listeners[$event])) {
+            throw new InvalidEventException($event);
         } else {
-            if (!isset($this->listeners[$event])) {
-                throw new InvalidEventException($event);
-            }
-            
             $this->listeners[$event] = [];
         }
         
