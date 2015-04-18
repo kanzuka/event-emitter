@@ -1,5 +1,9 @@
 # Changelog
 
+### v1.1.1
+
+- Minor code cleanup, updated dev dependencies and documentation.
+
 ### v1.1.0
 
 - Added methods to determine what events an object emits:

@@ -3,12 +3,14 @@
 [![@icicleio on Twitter](https://img.shields.io/badge/twitter-%40icicleio-5189c7.svg?style=flat-square)](https://twitter.com/icicleio)
 [![Build Status](https://img.shields.io/travis/icicleio/EventEmitter/master.svg?style=flat-square)](https://travis-ci.org/icicleio/EventEmitter)
 [![Coverage Status](https://img.shields.io/coveralls/icicleio/EventEmitter.svg?style=flat-square)](https://coveralls.io/r/icicleio/EventEmitter)
-[![Semantic Version](https://img.shields.io/badge/semver-v1.1.0-yellow.svg?style=flat-square)](http://semver.org)
+[![Semantic Version](https://img.shields.io/badge/semver-v1.1.1-yellow.svg?style=flat-square)](http://semver.org)
 [![Apache 2 License](https://img.shields.io/packagist/l/icicleio/event-emitter.svg?style=flat-square)](LICENSE)
 
 [![Join the chat at https://gitter.im/icicleio/Icicle](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/icicleio/Icicle)
 
-Event emitters are objects that can create a set of events identified by an integer or string to which other code can register callbacks that are invoked when the event occurs. Each event emitter should implement `Icicle\EventEmitter\EventEmitterInterface`. Classes should implement this interface by extending `Icicle\EventEmitter\EventEmitter` or using the trait `Icicle\EventEmitter\EventEmitterTrait` in the class definition.
+Event emitters are objects that emit events identified by an integer or string. When an object emits and event, it invokes a set of callbacks registered on the emitted event identifier.
+
+Each event emitter must implement `Icicle\EventEmitter\EventEmitterInterface`. Classes should implement this interface by extending `Icicle\EventEmitter\EventEmitter` or using the trait `Icicle\EventEmitter\EventEmitterTrait` in the class definition.
 
 This implementation differs from other event emitter libraries by ensuring that a particular callback can only be registered once for a particular event identifier. An attempt to register a previously registered callback is a no-op.
 
@@ -67,7 +69,7 @@ The recommended way to install is with the [Composer](http://getcomposer.org/) p
 Run the following command to use this library in your project: 
 
 ```bash
-composer require icicleio/event-emitter ~1
+composer require icicleio/event-emitter
 ```
 
 You can also manually edit `composer.json` to add this library as a project requirement.
@@ -92,11 +94,13 @@ You can also manually edit `composer.json` to add this library as a project requ
     - [removeAllListeners()](#removealllisteners) - Removes all listeners from an identifier or all identifiers.
     - [getListeners()](#getlisteners) - Returns the set of listeners for an event identifier.
     - [getListenerCount()](#getlistenercount) - Returns the number of listeners on an event identifier.
-    - [emit()](#emit) - Emit an event.
+    - [emits()](#emits) - Determines if an objects emits events with the given identifier.
+    - [getEventList()](#geteventlist) - Returns a list of event identifiers emitted by the object.
 - [EventEmitterTrait](#eventemittertrait)
     - [createEvent()](#createevent) - Creates an event identifier.
-- [Using Promises with Event Emitters](#using-promises-with-event-emitters)
-- [Using Coroutines with Event Emitters](#using-coroutines-with-event-emitters)
+    - [emit()](#emit) - Emit an event.
+- [Creating Promises from Events](#creating-promises-from-events)
+- [Executing Coroutines on Events](#executing-coroutines-on-events)
 
 #### Function prototypes
 
@@ -125,7 +129,7 @@ callable<ReturnType (ArgumentType $arg1, ArgumentType $arg2)>
 #### addListener()
 
 ```php
-$this $eventListenerInterface->addListener(
+$this $eventEmitterInterface->addListener(
     string|int $event,
     callable<void (mixed ...$args)> $callback,
     bool $once = false
@@ -139,7 +143,7 @@ Adds an event listener defined by `$callback` to the event identifier `$event`. 
 #### on()
 
 ```php
-$this $eventListenerInterface->on(string|int $event, callable<void (mixed ...$args)> $callback)
+$this $eventEmitterInterface->on(string|int $event, callable<void (mixed ...$args)> $callback)
 ```
 
 Adds an event listener defined by `$callback` to the event identifier `$event` that will be called each time the event is emitted. This method is identical to calling `addListener()` with `$once` as `false`. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -149,7 +153,7 @@ Adds an event listener defined by `$callback` to the event identifier `$event` t
 #### once()
 
 ```php
-$this $eventListenerInterface->once(string|int $event, callable<void (mixed ...$args)> $callback)
+$this $eventEmitterInterface->once(string|int $event, callable<void (mixed ...$args)> $callback)
 ```
 
 Adds an event listener defined by `$callback` to the event identifier `$event` that will be only the next time the event is emitted. This method is identical to calling `addListener()` with `$once` as `true`. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -159,7 +163,7 @@ Adds an event listener defined by `$callback` to the event identifier `$event` t
 #### removeListener()
 
 ```php
-$this $eventListenerInterface->removeListener(string|int $event, callable<void (mixed ...$args)> $callback)
+$this $eventEmitterInterface->removeListener(string|int $event, callable<void (mixed ...$args)> $callback)
 ```
 
 Removes the event listener defined by `$callback` from the event identifier `$event`. This method will remove the listener regardless of if the listener was to be called each time the event was emitted or only the next time the event was emitted. If the was not a registered on the given event, this function is a no-op. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -169,7 +173,7 @@ Removes the event listener defined by `$callback` from the event identifier `$ev
 #### off()
 
 ```php
-$this $eventListenerInterface->off(string|int $event, callable<void (mixed ...$args)> $callback)
+$this $eventEmitterInterface->off(string|int $event, callable<void (mixed ...$args)> $callback)
 ```
 
 This method is an alias of `removeListener()`.
@@ -179,7 +183,7 @@ This method is an alias of `removeListener()`.
 #### removeAllListeners()
 
 ```php
-$this $eventListenerInterface->removeAllListeners(string|int|null $event = null)
+$this $eventEmitterInterface->removeAllListeners(string|int|null $event = null)
 ```
 
 Removes all listeners from the event identifier or if `$event` is `null`, removes all listeners from all events. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -189,7 +193,7 @@ Removes all listeners from the event identifier or if `$event` is `null`, remove
 #### getListeners()
 
 ```php
-callable[] $eventListenerInterface->getListeners(string|int $event)
+callable[] $eventEmitterInterface->getListeners(string|int $event)
 ```
 
 Returns all listeners on the event identifier as an array of callables. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -199,7 +203,7 @@ Returns all listeners on the event identifier as an array of callables. If the i
 #### getListenerCount()
 
 ```php
-int $eventListenerInterface->getListenerCount(string|int $event)
+int $eventEmitterInterface->getListenerCount(string|int $event)
 ```
 
 Gets the number of listeners on the event identifier. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
@@ -209,7 +213,7 @@ Gets the number of listeners on the event identifier. If the identifier given by
 #### emits()
 
 ```php
-bool $eventListenerInterface->emits(string|int $event)
+bool $eventEmitterInterface->emits(string|int $event)
 ```
 
 Determines if the object emits events with the identifier given by `$event`.
@@ -219,7 +223,7 @@ Determines if the object emits events with the identifier given by `$event`.
 #### getEventList()
 
 ```php
-array $eventListenerInterface->getEventList()
+array $eventEmitterInterface->getEventList()
 ```
 
 Returns an array of event identifiers emitted by the object.
@@ -241,12 +245,12 @@ This method creates an event identifier so events may be emitted and listeners a
 #### emit()
 
 ```php
-bool $eventListenerInterface->emit(string|int $event, mixed ...$args)
+bool $eventEmitterTrait->emit(string|int $event, mixed ...$args)
 ```
 
 Emits an event with the event identifier `$event`, passing the remaining arguments given to this function as the arguments to each event listener. The method returns `true` if any event listeners were invoked, `false` if none were. If the identifier given by `$event` does not exist, an `Icicle\EventEmitter\Exception\InvalidEventException` will be thrown.
 
-## Using Promises with Event Emitters
+## Creating Promises from Events
 
 [Promises](//github.com/icicleio/Icicle/tree/master/src/Promise) are a component of [Icicle](//github.com/icicleio/Icicle), a library for writing asynchronous code in PHP. Promises act as placeholders for the future value of an asynchronous operation.
 
@@ -281,7 +285,7 @@ Loop::run();
 
 See the [Promise API documentation](//github.com/icicleio/Icicle/tree/master/src/Promise) for more information on using promises.
 
-## Using Coroutines with Event Emitters
+## Executing Coroutines on Events
 
 [Coroutines](//github.com/icicleio/Icicle/tree/master/src/Coroutine) use generators to create cooperative coroutines. They are a component of [Icicle](//github.com/icicleio/Icicle), a library for writing asynchronous code in PHP.
 
